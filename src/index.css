@@ -1,0 +1,21 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-brand-orange: #FF6B00;
+  --color-brand-dark: #1e293b;
+  --color-brand-light: #f8fafc;
+  --font-sans: 'Outfit', sans-serif;
+}
+
+@utility clip-circle {
+  clip-path: circle(50% at 50% 50%);
+}
+
+@utility clip-rounded-rect {
+  clip-path: inset(0% 0% 0% 0% round 24px);
+}
+
+body {
+  @apply bg-slate-50 text-slate-800 font-sans antialiased;
+}
