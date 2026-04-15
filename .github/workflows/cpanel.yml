@@ -1,0 +1,39 @@
+
+name: Deploy React App to cPanel
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20"
+
+      - name: Install dependencies and build React app
+        run: |
+          npm install
+          npm run build
+
+      - name: Verify build directory exists
+        run: ls -la ./dist
+
+      - name: Deploy to cPanel via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.Host }}
+          username: ${{ secrets.CPANEL_FTP_USER }}
+          password: ${{ secrets.CPANEL_FTP_PASS }}
+          local-dir: ./dist/
+          server-dir: /
+          port: 21
+          protocol: ftp
+          dangerous-clean-slate: false
