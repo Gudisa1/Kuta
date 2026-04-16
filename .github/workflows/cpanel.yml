@@ -1,4 +1,44 @@
 
+# name: Deploy React App to cPanel
+
+# on:
+#   push:
+#     branches:
+#       - main
+
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Checkout code
+#         uses: actions/checkout@v3
+
+#       - name: Set up Node.js
+#         uses: actions/setup-node@v3
+#         with:
+#           node-version: "20"
+
+#       - name: Install dependencies and build React app
+#         run: |
+#           npm install
+#           npm run build
+
+#       - name: Verify build directory exists
+#         run: ls -la ./dist
+
+#       - name: Deploy to cPanel via FTP
+#         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+#         with:
+#           server: ${{ secrets.Host }}
+#           username: ${{ secrets.CPANEL_FTP_USER }}
+#           password: ${{ secrets.CPANEL_FTP_PASS }}
+#           local-dir: ./dist/
+#           server-dir: /
+#           port: 21
+#           protocol: ftp
+#           dangerous-clean-slate: false
+
+
 name: Deploy React App to cPanel
 
 on:
@@ -9,21 +49,40 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: "20"
 
-      - name: Install dependencies and build React app
-        run: |
-          npm install
-          npm run build
+      - name: Install dependencies
+        run: npm install
 
-      - name: Verify build directory exists
+      - name: Build React app
+        run: npm run build
+
+      - name: Add .htaccess for routing + HTTPS
+        run: |
+          cat <<EOF > ./dist/.htaccess
+          RewriteEngine On
+
+          # Force HTTPS
+          RewriteCond %{HTTPS} off
+          RewriteRule ^(.*)$ https://kutalearninghub.com/\$1 [L,R=301]
+
+          # React Router fallback
+          RewriteBase /
+          RewriteRule ^index\.html$ - [L]
+          RewriteCond %{REQUEST_FILENAME} !-f
+          RewriteCond %{REQUEST_FILENAME} !-d
+          RewriteRule . /index.html [L]
+          EOF
+
+      - name: Verify build output
         run: ls -la ./dist
 
       - name: Deploy to cPanel via FTP
@@ -32,8 +91,8 @@ jobs:
           server: ${{ secrets.Host }}
           username: ${{ secrets.CPANEL_FTP_USER }}
           password: ${{ secrets.CPANEL_FTP_PASS }}
-          local-dir: ./dist/
-          server-dir: /
           port: 21
-          protocol: ftp
+          protocol: ftps
+          local-dir: ./dist/
+          server-dir: /public_html/
           dangerous-clean-slate: false
