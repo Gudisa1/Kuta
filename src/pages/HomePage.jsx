@@ -268,7 +268,7 @@ export default function HomePage() {
             >
               <div className="aspect-[4/3] rounded-2xl overflow-hidden shadow-xl">
                 <img 
-                  src='./hero.jpg'
+                  src='../assets/hero.jpg'
                   alt="Kuta Learning Institute Training Session" 
                   className="w-full h-full object-cover"
                 />
